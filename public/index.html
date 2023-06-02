@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Volunteer App</title>
+  <style>
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Volunteer App</h1>
+
+  <form id="searchForm">
+    <input type="text" id="searchInput" placeholder="Search Campaign">
+    <button type="submit">Search</button>
+  </form>
+
+  <div id="searchResults"></div>
+
+  <div id="campaignDetails"></div>
+
+  <script>
+    // Handle form submission for campaign search
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const searchInput = document.getElementById('searchInput').value;
+      searchCampaigns(searchInput);
+    });
+
+    // Function to search campaigns and display results
+    function searchCampaigns(searchTerm) {
+      fetch(`/campaigns?search=${encodeURIComponent(searchTerm)}`)
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('searchResults').innerHTML = data;
+          attachClickHandlers();
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Function to attach click handlers to campaign links
+    function attachClickHandlers() {
+      const campaignLinks = document.querySelectorAll('#searchResults a');
+      campaignLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const campaignId = link.getAttribute('href').split('/').pop();
+          fetchCampaignDetails(campaignId);
+        });
+      });
+    }
+
+    // Function to fetch and display campaign details
+    function fetchCampaignDetails(campaignId) {
+      fetch(`/campaigns/${campaignId}`)
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('campaignDetails').innerHTML = data;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+  </script>
+</body>
+</html>
